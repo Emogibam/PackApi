@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PackApi.Models;
-using PackApi.Models.DTOs;
 using PackApi.repository.Interfaces;
 using System.Collections.Generic;
 
@@ -11,29 +10,27 @@ namespace PackApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
-    public class NationalParksController : Controller
+    public class TrailsController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly INationalParkRepository _nationalParkRepository;
+        private readonly ITrailsRepository _TrailRepository;
 
-        public NationalParksController(IMapper mapper, INationalParkRepository nationalParkRepository)
+        public TrailsController(IMapper mapper, ITrailsRepository trailsRepository)
         {
             _mapper = mapper;
-            _nationalParkRepository = nationalParkRepository;
+            _TrailRepository = trailsRepository;
         }
 
-
         [HttpGet(nameof(GetNationalParks))]
-        [ProducesResponseType(200, Type = typeof(List<NationalPack>))]
+        [ProducesResponseType(200, Type = typeof(List<Trails>))]
         [ProducesResponseType(400)]
         public IActionResult GetNationalParks()
         {
-            var objList = _nationalParkRepository.GetNationalParks();
+            var objList = _TrailRepository.GetNationalParks();
 
             var objDTO = new List<NationalParkDtos>();
 
-            foreach(var obj in objList)
+            foreach (var obj in objList)
             {
                 objDTO.Add(_mapper.Map<NationalParkDtos>(obj));
             }
@@ -41,20 +38,20 @@ namespace PackApi.Controllers
             return Ok(objDTO);
         }
         [HttpGet(nameof(GetNationalParkById))]
-        [ProducesResponseType(200, Type = typeof(NationalPack))]
-        [ProducesResponseType(400)] 
+        [ProducesResponseType(200, Type = typeof(Trails))]
+        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesDefaultResponseType]
         public IActionResult GetNationalParkById(int id)
         {
-            var obj = _nationalParkRepository.GetNationalPack(id);
-            if(obj == null) return NotFound();
+            var obj = _TrailRepository.GetNationalPack(id);
+            if (obj == null) return NotFound();
 
             var objDTO = _mapper.Map<NationalParkDtos>(obj);
             return Ok(objDTO);
         }
-         [HttpPost]
-        [ProducesResponseType(201, Type = typeof(NationalPack))]
+        [HttpPost]
+        [ProducesResponseType(201, Type = typeof(Trails))]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -62,25 +59,25 @@ namespace PackApi.Controllers
         {
             if (nationalParkDtos == null) return BadRequest(ModelState);
 
-            if(_nationalParkRepository.NationalParkExist(nationalParkDtos.Name))
+            if (_TrailRepository.NationalParkExist(nationalParkDtos.Name))
             {
                 ModelState.AddModelError("", "National Park Exists!");
                 return StatusCode(404, ModelState);
             }
 
-            var nationalParckObj = _mapper.Map<NationalPack>(nationalParkDtos);
-            if(!_nationalParkRepository.CreateNationalPark(nationalParckObj))
+            var nationalParckObj = _mapper.Map<Trails>(nationalParkDtos);
+            if (!_TrailRepository.CreateNationalPark(nationalParckObj))
             {
                 ModelState.AddModelError("", $"Something w ent Wrong when saving the record {nationalParckObj.Name}");
-                return StatusCode(500, ModelState);  
+                return StatusCode(500, ModelState);
             }
-            return CreatedAtRoute("GetNationalParkById", new {nationaParkId = nationalParckObj.Id}, nationalParckObj);
+            return CreatedAtRoute("GetNationalParkById", new { nationaParkId = nationalParckObj.Id }, nationalParckObj);
         }
 
         [HttpPatch]
         [ProducesResponseType(204)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest) ]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UpdateNationalPark(int NationalParkId, [FromBody] NationalParkDtos nationalParkDtos)
         {
             if (nationalParkDtos == null || NationalParkId != nationalParkDtos.Id)
@@ -88,7 +85,7 @@ namespace PackApi.Controllers
                 return BadRequest(ModelState);
             }
             var nationalParckObj = _mapper.Map<NationalPack>(nationalParkDtos);
-            if (!_nationalParkRepository.UpdateNationalPark(nationalParckObj))
+            if (!_TrailRepository.UpdateNationalPark(nationalParckObj))
             {
                 ModelState.AddModelError("", $"Something went Wrong when updating the record {nationalParckObj.Name}");
                 return StatusCode(500, ModelState);
@@ -103,18 +100,20 @@ namespace PackApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult DeleteNationalPark(int nationalParkId)
         {
-            if (!_nationalParkRepository.NationalParkExist(nationalParkId)) 
+            if (!_TrailRepository.NationalParkExist(nationalParkId))
             {
                 return NotFound();
             }
 
-            var nationalParckObj = _nationalParkRepository.GetNationalPack(nationalParkId);
-            if (!_nationalParkRepository.DeleteNationalPark(nationalParckObj))
+            var nationalParckObj = _TrailRepository.GetNationalPack(nationalParkId);
+            if (!_TrailRepository.DeleteNationalPark(nationalParckObj))
             {
                 ModelState.AddModelError("", $"Something went Wrong when deleting the record {nationalParckObj.Name}");
                 return StatusCode(500, ModelState);
             }
             return NoContent();
         }
+
+
     }
 }

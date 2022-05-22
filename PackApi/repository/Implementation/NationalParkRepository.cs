@@ -48,6 +48,11 @@ namespace PackApi.repository.Implementation
             bool value = _db.NationPacks.Any(x => x.Id == id);
             return value;
         }
+        public bool UpdateNationalPark(NationalPack park)
+        {
+            _db.NationPacks.Update(park);
+            return Save();
+        }
 
         public bool Save()
 
@@ -57,10 +62,5 @@ namespace PackApi.repository.Implementation
         }
         
 
-        public bool UpdateNationalPark(NationalPack park)
-        {
-            _db.NationPacks.Update(park);
-            return Save();
-        }
     }
 }

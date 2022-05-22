@@ -37,11 +37,12 @@ namespace PackApi
                 (options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
             services.AddScoped<INationalParkRepository, NationalParkRepository>();
+            services.AddScoped<ITrailsRepository, TrailsRepository>();
 
             services.AddAutoMapper(typeof(Startup));
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "PackApi", Version = "v1" });
+                c.SwaggerDoc("PackOpenAPI", new OpenApiInfo { Title = "PackOpenAPI", Version = "v1" });
             });
         }
          
@@ -52,7 +53,7 @@ namespace PackApi
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PackApi v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/PackOpenAPI/swagger.json", "PackApi v1"));
             }
 
             app.UseHttpsRedirection();

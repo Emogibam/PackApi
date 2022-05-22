@@ -11,5 +11,6 @@ namespace PackApi.Data
         }
 
         public DbSet<NationalPack> NationPacks { get; set; }
+        public DbSet<Trails> Trails { get; set; }
     }
 }
